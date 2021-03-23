@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="muduo 基础学习基础学习 一个典型服务器的结构   对列+连接池 主要的业务逻辑挪到应用服务器处理，数据库只做辅助的业务处理缓存 缓存  缓存更新（缓存同步）  缓存 time out   如果缓存失败，重新去数据库查询，实时性比较差  一量数据库中数据更新，立即通知前端的缓存更新，实时性较高  缓存换页   :  内存不够，将不活跃的数据换出内存。   FIFO  LRU(least rec">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/2021/03/23/%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BB%93%E6%9E%84%E4%BA%86%E8%A7%A3/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="muduo 基础学习基础学习 一个典型服务器的结构   对列+连接池 主要的业务逻辑挪到应用服务器处理，数据库只做辅助的业务处理缓存 缓存  缓存更新（缓存同步）  缓存 time out   如果缓存失败，重新去数据库查询，实时性比较差  一量数据库中数据更新，立即通知前端的缓存更新，实时性较高  缓存换页   :  内存不够，将不活跃的数据换出内存。   FIFO  LRU(least rec">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-03-23T09:02:24.945Z">
+<meta property="article:modified_time" content="2021-03-23T08:00:46.882Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-服务器结构了解" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/03/23/%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BB%93%E6%9E%84%E4%BA%86%E8%A7%A3/" class="article-date">
+  <time class="dt-published" datetime="2021-03-23T09:02:24.945Z" itemprop="datePublished">2021-03-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="muduo-基础学习"><a href="#muduo-基础学习" class="headerlink" title="muduo 基础学习"></a>muduo 基础学习</h1><h2 id="基础学习"><a href="#基础学习" class="headerlink" title="基础学习"></a>基础学习</h2><ol>
+<li>一个典型服务器的结构</li>
+</ol>
+<ul>
+<li><p>对列+连接池</p>
+<p>主要的业务逻辑挪到应用服务器处理，数据库只做辅助的业务处理缓存</p>
+<p>缓存</p>
+<p> 缓存更新（缓存同步）  缓存 <code>time out</code> </p>
+<p> 如果缓存失败，重新去数据库查询，实时性比较差</p>
+<p> 一量数据库中数据更新，立即通知前端的缓存更新，实时性较高</p>
+<p> <code>缓存换页</code>   :  内存不够，将不活跃的数据换出内存。 </p>
+<ul>
+<li><code>FIFO </code></li>
+<li><code>LRU(least recently used)</code>(最近最少使用)</li>
+<li><code>LFU(least frequently used)</code>(最不频繁使用)</li>
+</ul>
+<p> nosql(反sql) key/value</p>
+<p> 分布式缓存产品：  redis 和 memcached</p>
+</li>
+<li><p>数据库读写分离</p>
+<p> 数据库的读操作&gt;写操作</p>
+<p> 对数据库进行负载均衡  replication机制</p>
+<p> 数据分区（分库，分表）</p>
+<p> 分库</p>
+</li>
+<li><p>应用服务器的负载均衡</p>
+<p> +（应用服务器<code>被动接受</code>任务）</p>
+<p> 增加一个任务服务器来实现，任务服务器可以监视应用服务器的负载，CPU高、IO高、并发高、内存换页高。 查询到这些信息之后，选取负载最低的服务器分配任务。</p>
+<p> +（应用服务器<code>主动接受</code>任务）</p>
+</li>
+</ul>
+<ol start="2">
+<li>服务器性能四大杀手</li>
+</ol>
+<ul>
+<li>数据拷贝  缓存</li>
+<li>环境切换  （理性创建线程）该不该使用多线程，单线程好还是多线程好，<ul>
+<li>单核服务器（采用状态机编程，效率最佳）– 大量的任务提交到服务器，增加线程间的切换开销。</li>
+<li>多核服务器能够充分发挥多核服务器的性能</li>
+</ul>
+</li>
+<li>内存分配  内存池</li>
+<li>锁竞争</li>
+</ul>
+<ol start="3">
+<li>web动静资源分离 </li>
+<li>前端负载均衡</li>
+</ol>
+<ul>
+<li><p><code>DNS负载均衡</code></p>
+<ul>
+<li>在DNS服务器中，可以为多个不同的地址配置同一个名字，对于不同的客户机访问同一个名字，得到不同的地址</li>
+</ul>
+</li>
+<li><p><code>反向代理</code></p>
+<ul>
+<li>使用代理服务器将请求发送给内部服务器，让代理服务器将请求均匀转发给堕胎内部web服务器之一，从而达到负载均衡的目的。标准代理方式式客户使用代理访问多个外部Web服务器，而这种代理方式是多个客户使用它访问内部Web服务器，因此也被称为反向代理模式。</li>
+</ul>
+</li>
+<li><p><code>基于NAT的负载均衡技术</code></p>
+</li>
+<li><p><code>LVS</code></p>
+</li>
+<li><p><code>F5硬件负载均衡</code></p>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/03/23/%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BB%93%E6%9E%84%E4%BA%86%E8%A7%A3/" data-id="ckmlsiacw0000xkay6e0e8nvn" data-title="" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2021/03/22/%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title"></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/23/%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BB%93%E6%9E%84%E4%BA%86%E8%A7%A3/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/22/%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/22/hello-world/">Hello World</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2021 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
