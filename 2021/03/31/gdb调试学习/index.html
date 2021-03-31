@@ -1,0 +1,211 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>gdb调试学习 | huzixiaoshu</title><meta name="author" content="huzixiaoshu"><meta name="copyright" content="huzixiaoshu"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="gdb调试 启动gdb   start –只执行一步 n –next  s –step（单步） –可以进入函数体内部 c –continue 直接停在断点位置   查看代码   l –list l 10 l filename ：行号（函数名）     设置断点：   设置当前文件断点：  b 10 (函数名)  b fileName: 行号（函数名）   设置条件断点 ： b 10 if valu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="gdb调试学习">
+<meta property="og:url" content="https://huzixiaoshu.github.io/2021/03/31/gdb%E8%B0%83%E8%AF%95%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="huzixiaoshu">
+<meta property="og:description" content="gdb调试 启动gdb   start –只执行一步 n –next  s –step（单步） –可以进入函数体内部 c –continue 直接停在断点位置   查看代码   l –list l 10 l filename ：行号（函数名）     设置断点：   设置当前文件断点：  b 10 (函数名)  b fileName: 行号（函数名）   设置条件断点 ： b 10 if valu">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://huzixiaoshu.github.io/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)">
+<meta property="article:published_time" content="2021-03-31T14:18:21.571Z">
+<meta property="article:modified_time" content="2021-03-31T12:36:04.257Z">
+<meta property="article:author" content="huzixiaoshu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://huzixiaoshu.github.io/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://huzixiaoshu.github.io/2021/03/31/gdb%E8%B0%83%E8%AF%95%E5%AD%A6%E4%B9%A0/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-03-31 20:36:04'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="/img/655.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">9</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background: linear-gradient(20deg, #0062be, #925696, #cc426e, #fb0347)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">huzixiaoshu</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">gdb调试学习</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2021-03-31T14:18:21.571Z" title="Created 2021-03-31 22:18:21">2021-03-31</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2021-03-31T12:36:04.257Z" title="Updated 2021-03-31 20:36:04">2021-03-31</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="gdb调试学习"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="gdb调试"><a href="#gdb调试" class="headerlink" title="gdb调试"></a>gdb调试</h1><ol>
+<li>启动gdb</li>
+</ol>
+<ul>
+<li><code>start</code> –只执行一步</li>
+<li><code>n</code> –next </li>
+<li><code>s</code> –step（单步） –可以进入函数体内部</li>
+<li><code>c</code> –continue 直接停在断点位置</li>
+</ul>
+<ol start="2">
+<li>查看代码</li>
+</ol>
+<ul>
+<li><code>l</code> –list<ul>
+<li><code>l 10</code></li>
+<li><code>l filename ：行号（函数名）</code></li>
+</ul>
+</li>
+</ul>
+<ol start="3">
+<li>设置断点：</li>
+</ol>
+<ul>
+<li>设置当前文件断点：<ul>
+<li> <code>b</code> 10 (函数名)</li>
+<li> <code>b fileName: 行号（函数名）</code></li>
+</ul>
+</li>
+<li>设置条件断点 ：<ul>
+<li><code>b 10 if value==19</code></li>
+</ul>
+</li>
+<li>删除断点：<ul>
+<li><code>delete --del -d</code></li>
+<li><code>d 断点的序号</code></li>
+<li>获取编号： <code>info , --i</code>  <code>info b</code></li>
+</ul>
+</li>
+</ul>
+<ol start="4">
+<li>开始执行gdb调试：</li>
+</ol>
+<ul>
+<li>执行一步操作： </li>
+<li>继续执行：</li>
+<li>执行多步，直接停在断点处：</li>
+</ul>
+<ol start="5">
+<li>单步调试</li>
+</ol>
+<ul>
+<li> 进入函数体内部： <code>s</code></li>
+<li> 从函数体内部跳出：<code>f</code></li>
+<li> 不进入到函数内部：<code>n</code></li>
+<li> 退出当前循环：<code>u</code></li>
+</ul>
+<ol start="6">
+<li>查看变量的值： <code>p</code> –print</li>
+<li>查看变量的类型：<code>ptype 变量名</code></li>
+<li>设置变量的值： <code>set var 变量名=赋值</code></li>
+<li>设置追踪变量：</li>
+</ol>
+<ul>
+<li><code>display</code> 取消追踪变量</li>
+<li><code>undisplay</code> 编号</li>
+<li>获取编号： <code>info display</code></li>
+</ul>
+<ol start="10">
+<li>退出gdb调试 <code>quit</code></li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">huzixiaoshu</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://huzixiaoshu.github.io/2021/03/31/gdb%E8%B0%83%E8%AF%95%E5%AD%A6%E4%B9%A0/">https://huzixiaoshu.github.io/2021/03/31/gdb%E8%B0%83%E8%AF%95%E5%AD%A6%E4%B9%A0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2021/03/31/makefile%E5%AD%A6%E4%B9%A0/"><img class="next-cover" src="/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">makefile学习</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-info-avatar is-center"><img class="avatar-img" src="/img/655.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">huzixiaoshu</div><div class="author-info__description">hello world</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">9</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/huzixiaoshu"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/huzixiaoshu" target="_blank" title="Github"><i class="fab fa-github"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#gdb%E8%B0%83%E8%AF%95"><span class="toc-number">1.</span> <span class="toc-text">gdb调试</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/03/31/gdb%E8%B0%83%E8%AF%95%E5%AD%A6%E4%B9%A0/" title="gdb调试学习"><img src="/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="gdb调试学习"/></a><div class="content"><a class="title" href="/2021/03/31/gdb%E8%B0%83%E8%AF%95%E5%AD%A6%E4%B9%A0/" title="gdb调试学习">gdb调试学习</a><time datetime="2021-03-31T14:18:21.571Z" title="Created 2021-03-31 22:18:21">2021-03-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/03/31/makefile%E5%AD%A6%E4%B9%A0/" title="makefile学习"><img src="/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="makefile学习"/></a><div class="content"><a class="title" href="/2021/03/31/makefile%E5%AD%A6%E4%B9%A0/" title="makefile学习">makefile学习</a><time datetime="2021-03-31T14:18:14.160Z" title="Created 2021-03-31 22:18:14">2021-03-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/03/30/gcc%E7%BC%96%E8%AF%91%E5%AD%A6%E4%B9%A0/" title="gcc编译器使用"><img src="/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="gcc编译器使用"/></a><div class="content"><a class="title" href="/2021/03/30/gcc%E7%BC%96%E8%AF%91%E5%AD%A6%E4%B9%A0/" title="gcc编译器使用">gcc编译器使用</a><time datetime="2021-03-30T13:08:31.598Z" title="Created 2021-03-30 21:08:31">2021-03-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/03/30/Vim%E7%BC%96%E8%AF%91%E5%99%A8%E4%BD%BF%E7%94%A8/" title="Vim编译器使用"><img src="/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Vim编译器使用"/></a><div class="content"><a class="title" href="/2021/03/30/Vim%E7%BC%96%E8%AF%91%E5%99%A8%E4%BD%BF%E7%94%A8/" title="Vim编译器使用">Vim编译器使用</a><time datetime="2021-03-30T13:08:31.593Z" title="Created 2021-03-30 21:08:31">2021-03-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/03/24/poll/" title="muduo-poll"><img src="/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="muduo-poll"/></a><div class="content"><a class="title" href="/2021/03/24/poll/" title="muduo-poll">muduo-poll</a><time datetime="2021-03-24T13:22:53.873Z" title="Created 2021-03-24 21:22:53">2021-03-24</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By huzixiaoshu</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
