@@ -1,0 +1,270 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>进程间通信学习 | huzixiaoshu</title><meta name="author" content="huzixiaoshu"><meta name="copyright" content="huzixiaoshu"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="IPC方法现今常用的进程间通信的方法：  管道（使用最简单） 信号（开销最小） 共享映射区（无血缘关系） 本地套接字（最稳定）  管道 本质为一个伪文件（内核缓冲区） 有两个文件描述符引用，一个表示读端，一个表示写端。 规定数据从管道的写端流入管道，从读端流出。 管道的原理：管道实为内核使用环形队列机制，借助内核缓冲区（4k）实现。 局限性：   数据自己读不能自己写。 数据一旦被读走，便不在管道">
+<meta property="og:type" content="article">
+<meta property="og:title" content="进程间通信学习">
+<meta property="og:url" content="https://huzixiaoshu.github.io/2021/04/16/%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/index.html">
+<meta property="og:site_name" content="huzixiaoshu">
+<meta property="og:description" content="IPC方法现今常用的进程间通信的方法：  管道（使用最简单） 信号（开销最小） 共享映射区（无血缘关系） 本地套接字（最稳定）  管道 本质为一个伪文件（内核缓冲区） 有两个文件描述符引用，一个表示读端，一个表示写端。 规定数据从管道的写端流入管道，从读端流出。 管道的原理：管道实为内核使用环形队列机制，借助内核缓冲区（4k）实现。 局限性：   数据自己读不能自己写。 数据一旦被读走，便不在管道">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://huzixiaoshu.github.io/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)">
+<meta property="article:published_time" content="2021-04-16T06:27:25.189Z">
+<meta property="article:modified_time" content="2021-04-16T06:27:13.389Z">
+<meta property="article:author" content="huzixiaoshu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://huzixiaoshu.github.io/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://huzixiaoshu.github.io/2021/04/16/%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-04-16 14:27:13'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="/img/655.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">13</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background: linear-gradient(20deg, #0062be, #925696, #cc426e, #fb0347)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">huzixiaoshu</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">进程间通信学习</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2021-04-16T06:27:25.189Z" title="Created 2021-04-16 14:27:25">2021-04-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2021-04-16T06:27:13.389Z" title="Updated 2021-04-16 14:27:13">2021-04-16</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="进程间通信学习"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="IPC方法"><a href="#IPC方法" class="headerlink" title="IPC方法"></a>IPC方法</h1><p>现今常用的进程间通信的方法：</p>
+<ul>
+<li>管道（使用最简单）</li>
+<li>信号（开销最小）</li>
+<li>共享映射区（无血缘关系）</li>
+<li>本地套接字（最稳定）</li>
+</ul>
+<h1 id="管道"><a href="#管道" class="headerlink" title="管道"></a>管道</h1><ol>
+<li>本质为一个<code>伪文件（内核缓冲区）</code></li>
+<li>有两个文件描述符引用，一个表示<code>读端</code>，一个表示<code>写端</code>。</li>
+<li>规定数据从管道的写端流入管道，从读端流出。</li>
+<li>管道的原理：管道实为内核使用<code>环形队列</code>机制，借助内核缓冲区（4k）实现。</li>
+<li>局限性：</li>
+</ol>
+<ul>
+<li>数据自己读不能自己写。</li>
+<li>数据一旦被读走，便不在管道中存在，不可反复读取</li>
+<li>半双工通信，数据只能在一个方向上流动</li>
+<li>只能在有公共祖先的进程间使用管道</li>
+</ul>
+<ol start="6">
+<li>读管道：</li>
+</ol>
+<ul>
+<li>管道有数据：read返回实际读到的字节数</li>
+<li>管道无数据：<ul>
+<li>管道写端被全部关闭，read返回0（类似读到文件尾）</li>
+<li>有写端，read阻塞等待</li>
+</ul>
+</li>
+</ul>
+<ol start="7">
+<li>写管道：</li>
+</ol>
+<ul>
+<li>无读端： 异常终止（SIGPIPE导致的）</li>
+<li>有读端： <ul>
+<li>管道已满，阻塞等待</li>
+<li>管道未满，返回写出的字节个数</li>
+</ul>
+</li>
+</ul>
+<ol start="8">
+<li>兄弟进程间通信：</li>
+</ol>
+<ul>
+<li>记得关闭主进程之间的fd</li>
+</ul>
+<ol start="9">
+<li>管道缓冲区大小</li>
+</ol>
+<ul>
+<li>可以使用 ulimit -a 命令来查看当前系统中创建管道文件所对应的内核缓冲区大小： pipe size (512 bytes, -p) 8</li>
+<li>使用fpathconf函数，引入&lt;unistd.h&gt; </li>
+</ul>
+<ol start="10">
+<li>管道的优劣</li>
+</ol>
+<ul>
+<li>优点：<ul>
+<li>简单，相比信号，套接字实现进程间通信，简单很多。</li>
+</ul>
+</li>
+<li>缺点：<ul>
+<li>只能单向通信，双向通信需建立两个管道</li>
+<li>只能用于父子、兄弟进程（有共同的祖先）间的通信，该问题后来使用fifo有名管道解决。<h1 id="FIFO"><a href="#FIFO" class="headerlink" title="FIFO"></a>FIFO</h1></li>
+</ul>
+</li>
+</ul>
+<ol>
+<li>FIFO通常称为<code>命名管道</code></li>
+<li>创建：</li>
+</ol>
+<ul>
+<li>命令：mkfifo</li>
+<li>函数：mkfifo <ul>
+<li> 参数： name  + mode（8进制）</li>
+</ul>
+</li>
+</ul>
+<ol start="3">
+<li>无血缘关系进程间通信：使用同一个FIFO（同一个目录下的同一个文件）,可多读端、多写端<h1 id="共享存储映射"><a href="#共享存储映射" class="headerlink" title="共享存储映射"></a>共享存储映射</h1></li>
+<li>mmap函数：<br><br> void* mmap(void *adrr,size_t length ,int prot, int flags, int fd, off_t offset);</li>
+<li> 参数：</li>
+</ol>
+<ul>
+<li> <code>addr</code>: 建立映射区的首地址，由linux内核指定，使用时，直接传递NULL</li>
+<li> <code>length</code>: 欲创建映射区的大小</li>
+<li> <code>prot</code>：映射区权限PROT_READ、PROT_WRITE、PROT_READ|PROT_WRITE</li>
+<li><code>flags</code>: 标志位参数（常用于设定更新物理区域、设置共享、、创建匿名映射区<ul>
+<li><code>MAP_SHARED</code>: 会将映射区所做的操作反映到物理设备（磁盘）上。</li>
+<li><code>MAP_PRIVATE</code>: 映射区所作的修改不会反映到物理设备。</li>
+</ul>
+</li>
+<li><code>fd</code>: 用来建立映射区的文件描述符</li>
+<li><code>offset</code>：映射文件的偏移（4K的整数倍）</li>
+</ul>
+<ol start="3">
+<li>注意点：</li>
+</ol>
+<ul>
+<li>1.映射区的大小小于等于文件的权限</li>
+<li>2.映射区创建过程中会先对文件读一遍</li>
+</ul>
+<ol start="4">
+<li>总结：</li>
+</ol>
+<ul>
+<li>创建映射区的过程中，隐含着一次对映射文件的读操作</li>
+<li>当MAP_SHARED时，要求：映射区的权限应&lt;= 文件打开的权限（出于对映射区的保护）。而MAP_PRIVATE则无所谓，因为mmap中的权限是对内存的限制。</li>
+<li>映射区的释放与文件关闭无关。只要映射建立成功，文件可以立即关闭。</li>
+<li>特别注意，当映射文件大小为0时，不能创建映射区。所有：用于映射的文件必须要有实际大小！！！ mmap使用时常常会出现总线错误，通常是由于共享文件存储空间大小引起的。</li>
+<li>munmap传入的地址一定是mmap的返回地址，坚决杜绝指针++操作</li>
+<li>如果文件偏移量必须为4K的整数倍</li>
+<li>mmap创建映射区出错概率非常高，一定要检查返回值，确保映射区就建立成功再进行后续操作</li>
+</ul>
+<h1 id="匿名映射"><a href="#匿名映射" class="headerlink" title="匿名映射"></a>匿名映射</h1><ol>
+<li>使用MAP_ANONYMOUS(或MAP_ANON) 位或到MAP_SHARED</li>
+</ol>
+<ul>
+<li>int *p =mmap(NULL,4,PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS,-1,0);</li>
+<li>‘4’ 随意举例，该位置表大小，可依据实际需要填写。</li>
+</ul>
+<ol start="2">
+<li>‘dev/zero’ 方式创建</li>
+</ol>
+<h1 id="strace"><a href="#strace" class="headerlink" title="strace"></a>strace</h1><ol>
+<li>strace +可执行文件  ：  可以查看一个文件所有的操作过程</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">huzixiaoshu</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://huzixiaoshu.github.io/2021/04/16/%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/">https://huzixiaoshu.github.io/2021/04/16/%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2021/04/07/%E8%BF%9B%E7%A8%8B%E5%AD%A6%E4%B9%A0/"><img class="next-cover" src="/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">进程学习</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-info-avatar is-center"><img class="avatar-img" src="/img/655.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">huzixiaoshu</div><div class="author-info__description">hello world</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">13</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/huzixiaoshu"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/huzixiaoshu" target="_blank" title="Github"><i class="fab fa-github"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#IPC%E6%96%B9%E6%B3%95"><span class="toc-number">1.</span> <span class="toc-text">IPC方法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AE%A1%E9%81%93"><span class="toc-number">2.</span> <span class="toc-text">管道</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#FIFO"><span class="toc-number">3.</span> <span class="toc-text">FIFO</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B1%E4%BA%AB%E5%AD%98%E5%82%A8%E6%98%A0%E5%B0%84"><span class="toc-number">4.</span> <span class="toc-text">共享存储映射</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8C%BF%E5%90%8D%E6%98%A0%E5%B0%84"><span class="toc-number">5.</span> <span class="toc-text">匿名映射</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#strace"><span class="toc-number">6.</span> <span class="toc-text">strace</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/04/16/%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/" title="进程间通信学习"><img src="/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="进程间通信学习"/></a><div class="content"><a class="title" href="/2021/04/16/%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/" title="进程间通信学习">进程间通信学习</a><time datetime="2021-04-16T06:27:25.189Z" title="Created 2021-04-16 14:27:25">2021-04-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/04/07/%E8%BF%9B%E7%A8%8B%E5%AD%A6%E4%B9%A0/" title="进程学习"><img src="/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="进程学习"/></a><div class="content"><a class="title" href="/2021/04/07/%E8%BF%9B%E7%A8%8B%E5%AD%A6%E4%B9%A0/" title="进程学习">进程学习</a><time datetime="2021-04-07T11:51:39.183Z" title="Created 2021-04-07 19:51:39">2021-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/04/06/%E7%9B%AE%E5%BD%95%E6%93%8D%E4%BD%9C%E5%87%BD%E6%95%B0%E5%AD%A6%E4%B9%A0/" title="目录操作函数学习"><img src="/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="目录操作函数学习"/></a><div class="content"><a class="title" href="/2021/04/06/%E7%9B%AE%E5%BD%95%E6%93%8D%E4%BD%9C%E5%87%BD%E6%95%B0%E5%AD%A6%E4%B9%A0/" title="目录操作函数学习">目录操作函数学习</a><time datetime="2021-04-06T12:50:07.982Z" title="Created 2021-04-06 20:50:07">2021-04-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/04/06/C%E5%BA%93%E5%87%BD%E6%95%B0%E5%AD%A6%E4%B9%A0/" title="C库函数学习"><img src="/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="C库函数学习"/></a><div class="content"><a class="title" href="/2021/04/06/C%E5%BA%93%E5%87%BD%E6%95%B0%E5%AD%A6%E4%B9%A0/" title="C库函数学习">C库函数学习</a><time datetime="2021-04-06T07:25:38.151Z" title="Created 2021-04-06 15:25:38">2021-04-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/03/31/gdb%E8%B0%83%E8%AF%95%E5%AD%A6%E4%B9%A0/" title="gdb调试学习"><img src="/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="gdb调试学习"/></a><div class="content"><a class="title" href="/2021/03/31/gdb%E8%B0%83%E8%AF%95%E5%AD%A6%E4%B9%A0/" title="gdb调试学习">gdb调试学习</a><time datetime="2021-03-31T14:18:21.571Z" title="Created 2021-03-31 22:18:21">2021-03-31</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By huzixiaoshu</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
