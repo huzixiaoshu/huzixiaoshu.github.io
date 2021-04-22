@@ -1,0 +1,211 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>时间_原子操作_异常 | huzixiaoshu</title><meta name="author" content="huzixiaoshu"><meta name="copyright" content="huzixiaoshu"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="基础 值语义： 可以拷贝的，拷贝之后，与原对象脱离关系 对象语义，要么是不能拷贝的，要么可以拷贝，拷贝之后与原对象仍然存在一定的关系，比如共享底层资源（要实现自己的拷贝构造函数） 继承了两个类，copyable，or nocopyable。nocopyable只需要让其拷贝构造函数和赋值构造函数定义为&#x3D;delete即可(c++11特性)或者将其定义为private。其默认构造函数和析构函数需要定义">
+<meta property="og:type" content="article">
+<meta property="og:title" content="时间_原子操作_异常">
+<meta property="og:url" content="https://huzixiaoshu.github.io/2021/04/23/%E6%97%B6%E9%97%B4_%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C_%E5%BC%82%E5%B8%B8/index.html">
+<meta property="og:site_name" content="huzixiaoshu">
+<meta property="og:description" content="基础 值语义： 可以拷贝的，拷贝之后，与原对象脱离关系 对象语义，要么是不能拷贝的，要么可以拷贝，拷贝之后与原对象仍然存在一定的关系，比如共享底层资源（要实现自己的拷贝构造函数） 继承了两个类，copyable，or nocopyable。nocopyable只需要让其拷贝构造函数和赋值构造函数定义为&#x3D;delete即可(c++11特性)或者将其定义为private。其默认构造函数和析构函数需要定义">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://huzixiaoshu.github.io/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)">
+<meta property="article:published_time" content="2021-04-22T17:14:01.302Z">
+<meta property="article:modified_time" content="2021-04-22T17:13:42.932Z">
+<meta property="article:author" content="huzixiaoshu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://huzixiaoshu.github.io/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://huzixiaoshu.github.io/2021/04/23/%E6%97%B6%E9%97%B4_%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C_%E5%BC%82%E5%B8%B8/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-04-23 01:13:42'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="/img/655.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">20</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background: linear-gradient(20deg, #0062be, #925696, #cc426e, #fb0347)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">huzixiaoshu</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">时间_原子操作_异常</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2021-04-22T17:14:01.302Z" title="Created 2021-04-23 01:14:01">2021-04-23</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2021-04-22T17:13:42.932Z" title="Updated 2021-04-23 01:13:42">2021-04-23</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="时间_原子操作_异常"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h1><ol>
+<li>值语义： 可以拷贝的，拷贝之后，与原对象脱离关系</li>
+<li>对象语义，要么是不能拷贝的，要么可以拷贝，拷贝之后与原对象仍然存在一定的关系，比如共享底层资源（要实现自己的拷贝构造函数）</li>
+<li>继承了两个类，<code>copyable</code>，or <code>nocopyable</code>。<br><code>nocopyable</code>只需要让其拷贝构造函数和赋值构造函数定义为<code>=delete</code>即可(c++11特性)或者将其定义为<code>private</code>。其默认构造函数和析构函数需要定义为<code>protectd</code>，使得只能为子类使用，但是子类不具有复制行为。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">noncopyable</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">noncopyable</span>(<span class="keyword">const</span> noncopyable&amp;) = <span class="keyword">delete</span>;</span><br><span class="line">    <span class="keyword">void</span> <span class="keyword">operator</span>=(<span class="keyword">const</span> noncopyable&amp;) = <span class="keyword">delete</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">    <span class="built_in">noncopyable</span>() = <span class="keyword">default</span>;</span><br><span class="line">    ~<span class="built_in">noncopyable</span>() = <span class="keyword">default</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h1 id="muduo-copyable-空基类，标识类，值类型"><a href="#muduo-copyable-空基类，标识类，值类型" class="headerlink" title="muduo::copyable 空基类，标识类，值类型"></a>muduo::copyable 空基类，标识类，值类型</h1><h2 id="Timestamp"><a href="#Timestamp" class="headerlink" title="Timestamp"></a><code>Timestamp</code></h2></li>
+<li><code>static_assert</code> 在编译期间实现断言检测</li>
+<li><code>PRId64</code> ：选择合适的格式。<br><br><code>PRId64</code>实现<code>int64</code>的跨平台<br> <code>int64</code>在32/64不同的系统上，表示不同，linux上定义如下： <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">if</span>     __WORDSIZE == 64    <span class="comment">// 64位机器 </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __PRI64_PREFIX	<span class="meta-string">&quot;l&quot;</span> </span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span>                       <span class="comment">// 32位机器</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __PRI64_PREFIX	<span class="meta-string">&quot;ll&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"><span class="comment">// 因此在64位的机器上是 ld,32位机器上是lld</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PRId64		__PRI64_PREFIX <span class="meta-string">&quot;d&quot;</span></span></span><br></pre></td></tr></table></figure>
+ 在如下的格式化代码中，通过<code>PRI64</code>实现跨平台 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">string <span class="title">Timestamp::toString</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">32</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="keyword">int64_t</span> seconds = microSecondsSinceEpoch_ / kMicroSecondsPerSecond;   <span class="comment">// 整数</span></span><br><span class="line">    <span class="keyword">int64_t</span> microseconds = microSecondsSinceEpoch_ % kMicroSecondsPerSecond;  <span class="comment">// 余数</span></span><br><span class="line">    <span class="built_in">snprintf</span>(buf, <span class="built_in"><span class="keyword">sizeof</span></span>(buf)<span class="number">-1</span>, <span class="string">&quot;%&quot;</span> PRId64 <span class="string">&quot;.%06&quot;</span> PRId64 <span class="string">&quot;&quot;</span>, seconds, microseconds);</span><br><span class="line">    <span class="keyword">return</span> buf;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><code>explicit</code> 显式转换</li>
+</ol>
+<h2 id="Atomic"><a href="#Atomic" class="headerlink" title="Atomic"></a><code>Atomic</code></h2><ul>
+<li><code>gcc</code>的原子操作<ul>
+<li><code>__sync_fetch_and_add(type* ptr, type value)</code><br>原子增加操作：<code>value + x</code>，并且返回修改之前的<code>value</code>。</li>
+<li><code>__sydnc_val_compare_and_swap(type* ptr, type oval, type nval)</code><br>原子比较交换操作：<code>*ptr* = *ptr==oval? nval : *ptr</code>。返回的是没有修改过的<code>*ptr</code>。 </li>
+<li><code>__sync_lock_test_and_set(type* ptr, type value)</code><br>原子赋值操作：<code>*ptr=value</code></li>
+</ul>
+</li>
+<li>使用这些原子性操作，编译的时候需要加<code>-march=cpu-type</code></li>
+<li><code>volatile</code>的作用：<br> <code>volatile</code> 关键字是为了确保本指令不会因为编译器的优化而省略，且要求每次直接读值。即：防止编译器对代码进行优化。<br>  当要求使用 <code>volatile</code> 声明的变量的值的时候，系统总是重新从它所在的内存读取数据，而不是使用保存在寄存器中的备份。</li>
+<li><code>get</code> 在前表示先获取到当前值，然后再执行操作</li>
+</ul>
+<ul>
+<li><code>gcc</code>编译时选项  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"> Wall			<span class="comment">// 大部分警告 </span></span><br><span class="line">-Wextra			<span class="comment">// 一些额外的警告</span></span><br><span class="line">-Werror			<span class="comment">// 当出现警告时转为错误，停止编译</span></span><br><span class="line">-Wconversion		    <span class="comment">// 一些可能改变值的隐式转换，给出警告。</span></span><br><span class="line">-Wno-unused-parameter	<span class="comment">// 函数中出现未使用的参数，不给出警告。</span></span><br><span class="line">-Wold-style-cast		<span class="comment">// C风格的转换，给出警告</span></span><br><span class="line">-Woverloaded-<span class="keyword">virtual</span>	<span class="comment">// 如果函数的声明隐藏住了基类的虚函数，就给出警告。</span></span><br><span class="line">-Wpointer-arith		<span class="comment">// 对函数指针或者void *类型的指针进行算术操作时给出警告</span></span><br><span class="line">-Wshadow		    <span class="comment">// 当一个局部变量遮盖住了另一个局部变量，或者全局变量时，给出警告。</span></span><br><span class="line">-Wwrite-strings		<span class="comment">// 规定字符串常量的类型是const char[length],因此,把这样的地址复制给 non-const char *指针将产生警告.这些警告能够帮助你在编译期间发现企图写入字符串常量 的代码</span></span><br><span class="line">-march=native		<span class="comment">// 指定cpu体系结构为本地平台</span></span><br><span class="line"><span class="comment">// 慎用</span></span><br><span class="line">-fpermissive        <span class="comment">// 会将错误降级为警告，是为了兼容以前的代码</span></span><br><span class="line"><span class="comment">// Downgrade some diagnostics about nonconformant code from errors to warnings. Thus, using -fpermissive will allow some nonconforming code to compile.</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="Execption"><a href="#Execption" class="headerlink" title="Execption"></a><code>Execption</code></h2><ul>
+<li><p><code>noexcept</code>:  以往的C++版本中常用throw()表示，在C++ 11中已经被noexcept代替。</p>
+</li>
+<li><p><code>override</code>: 在C++11中提供的override关键字可以解决这一问题，它标记派生类中的虚函数，如果基类中的<code>虚函数没有被覆盖</code>，<code>编译器则报错</code>。</p>
+</li>
+<li><p><code>std::move</code>：通过std::move，可以避免不必要的拷贝操作。<br>std::move是为性能而生。std::move是将对象的状态或者所有权从一个对象转移到另一个对象，只是转移，没有内存的搬迁或者内存拷贝。</p>
+</li>
+<li><p><code>__builtin_expect()</code>是 GCC (version &gt;= 2.96）提供给程序员使用的，目的是将“分支转移”的信息提供给编译器，这样编译器可以对代码进行优化，以减少指令跳转带来的性能下降。<br>__builtin_expect((x),1)表示 x 的值为真的可能性更大；<br>__builtin_expect((x),0)表示 x 的值为假的可能性更大。</p>
+</li>
+<li><p>打印<code>backtrace</code>信息</p>
+  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;execinfo.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> </span><br><span class="line">backtrace(<span class="keyword">void</span>** buffer, <span class="keyword">int</span> size);</span><br><span class="line"></span><br><span class="line"><span class="keyword">char</span>**</span><br><span class="line">backtrace_symbols(<span class="keyword">void</span>* <span class="keyword">const</span> *buffer, <span class="keyword">int</span> size);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>backtrace</code><ul>
+<li><code>buffer</code>是个指针数组, <code>void* buffer[size]</code>。    </li>
+<li>返回值nptr是实际<code>buffer</code>的元素个数，元素是当前进程中活跃的函数。</li>
+</ul>
+</li>
+<li><code>backtrace_symbols</code><ul>
+<li>作用<br>将<code>backtrace</code>函数得到的<code>buffer</code>中的元素（元素是地址）翻译成描述这个地址的字符串。这个字符串组成为：函数名 + 函数的偏移地址 + 16进制的实际的地址，比如：<code>exception_test(_start+0x2a) [0x55661933e5fa]</code></li>
+<li>返回值<br>上面的这个字符串指针数组作为返回值：**<code>char* strings[size]</code>**，<code>size</code>是函数的传入参数，也即<code>backtrace</code>的返回值。 </li>
+<li>注意点<br>这个返回的 **<code>char* strings[size]</code>**是这个函数在内部由<code>malloc</code>分配的内存，因此调用者必须手动 <code>free(strings)</code>。但是<code>buffer</code>不应该被释放，因为它不是由<code>malloc</code>分配的。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code>demagle</code>  :将C++ ABI标识符(C++ ABI identifier)转换成C++源程序标识符(original C++ source identifier)的过程称为demangle</p>
+  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span>* </span><br><span class="line">abi::__cxa_demangle(<span class="keyword">const</span> <span class="keyword">char</span> * mangled_name,</span><br><span class="line">                    <span class="keyword">char</span>       * output_buffer,</span><br><span class="line">                    <span class="keyword">size_t</span>     * length,</span><br><span class="line">                    <span class="keyword">int</span> 	   * status	 </span><br><span class="line">                    )	   </span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>mangled_name</code>：是一个以<code>\0</code>结尾的需要被<code>demangle</code>字符串。</li>
+<li><code>output_buffer</code>：存储结果。如果<code>*length</code>满足<code>demangled_name</code>的长度，那么 <em><strong>output_buffer malloc</strong></em> 的长度是<code>*length</code>，否则就需要调用<code>remalloc</code>。</li>
+<li><code>length</code>：传入传出参数，传入的是<code>output_buffer</code>需要分配的大小，如果长度不够，<code>length</code>就该改变。</li>
+<li><code>status</code>：<ul>
+<li> 0：<code>demangle</code>成功</li>
+<li>-1：内存分配失败</li>
+<li>-2：<code>mangled_name</code>无效</li>
+<li>-3：参数列表其中一个无效</li>
+</ul>
+</li>
+<li>返回值<br>指向<code>demangled_name</code>，或者<code>nullptr</code>如果返回失败。 调用者需要 <em><strong><code>free</code></strong></em> 这个内存。</li>
+</ul>
+</li>
+</ul>
+<h2 id="CurrentThread"><a href="#CurrentThread" class="headerlink" title="CurrentThread"></a>CurrentThread</h2><ol>
+<li><code>std::is_same&lt;int ,pid_t&gt;::value</code> 判断是否两个类型相同</li>
+<li></li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">huzixiaoshu</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://huzixiaoshu.github.io/2021/04/23/%E6%97%B6%E9%97%B4_%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C_%E5%BC%82%E5%B8%B8/">https://huzixiaoshu.github.io/2021/04/23/%E6%97%B6%E9%97%B4_%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C_%E5%BC%82%E5%B8%B8/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2021/04/23/%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80/"><img class="next-cover" src="/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">网络基础</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-info-avatar is-center"><img class="avatar-img" src="/img/655.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">huzixiaoshu</div><div class="author-info__description">hello world</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">20</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/huzixiaoshu"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/huzixiaoshu" target="_blank" title="Github"><i class="fab fa-github"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80"><span class="toc-number">1.</span> <span class="toc-text">基础</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#muduo-copyable-%E7%A9%BA%E5%9F%BA%E7%B1%BB%EF%BC%8C%E6%A0%87%E8%AF%86%E7%B1%BB%EF%BC%8C%E5%80%BC%E7%B1%BB%E5%9E%8B"><span class="toc-number">2.</span> <span class="toc-text">muduo::copyable 空基类，标识类，值类型</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Timestamp"><span class="toc-number">2.1.</span> <span class="toc-text">Timestamp</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Atomic"><span class="toc-number">2.2.</span> <span class="toc-text">Atomic</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Execption"><span class="toc-number">2.3.</span> <span class="toc-text">Execption</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CurrentThread"><span class="toc-number">2.4.</span> <span class="toc-text">CurrentThread</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/04/23/%E6%97%B6%E9%97%B4_%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C_%E5%BC%82%E5%B8%B8/" title="时间_原子操作_异常"><img src="/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="时间_原子操作_异常"/></a><div class="content"><a class="title" href="/2021/04/23/%E6%97%B6%E9%97%B4_%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C_%E5%BC%82%E5%B8%B8/" title="时间_原子操作_异常">时间_原子操作_异常</a><time datetime="2021-04-22T17:14:01.302Z" title="Created 2021-04-23 01:14:01">2021-04-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/04/23/%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80/" title="网络基础"><img src="/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="网络基础"/></a><div class="content"><a class="title" href="/2021/04/23/%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80/" title="网络基础">网络基础</a><time datetime="2021-04-22T17:13:03.412Z" title="Created 2021-04-23 01:13:03">2021-04-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/04/20/%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%90%8C%E6%AD%A5/" title="线程的同步"><img src="/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="线程的同步"/></a><div class="content"><a class="title" href="/2021/04/20/%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%90%8C%E6%AD%A5/" title="线程的同步">线程的同步</a><time datetime="2021-04-20T13:51:27.440Z" title="Created 2021-04-20 21:51:27">2021-04-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/04/19/%E7%BA%BF%E7%A8%8B/" title="线程"><img src="/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="线程"/></a><div class="content"><a class="title" href="/2021/04/19/%E7%BA%BF%E7%A8%8B/" title="线程">线程</a><time datetime="2021-04-19T13:43:26.744Z" title="Created 2021-04-19 21:43:26">2021-04-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/04/18/%E4%BF%A1%E5%8F%B72/" title="信号2"><img src="/linear-gradient(20deg,%20#0062be,%20#925696,%20#cc426e,%20#fb0347)" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="信号2"/></a><div class="content"><a class="title" href="/2021/04/18/%E4%BF%A1%E5%8F%B72/" title="信号2">信号2</a><time datetime="2021-04-18T04:08:48.751Z" title="Created 2021-04-18 12:08:48">2021-04-18</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By huzixiaoshu</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
